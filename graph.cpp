@@ -13,10 +13,10 @@ AdjacencyMatrix makeSubgraphForVertex(AdjacencyMatrix& matrix, int vertex)
     toRemove.insert(vertex);
 
     AdjacencyMatrix subGraph(matrix);
-
-    for (int i = 0; i < v.size(); i++)
+    subGraph.setLabel("vertex " + std::to_string(vertex));
+    for (int i = 0; i < v.neighbors.size(); i++)
     {
-        if(!v[i])
+        if(!v.neighbors[i])
             toRemove.insert(i);
     }
 

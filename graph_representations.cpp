@@ -6,15 +6,15 @@ int AdjacencyMatrix::degree(int vertex)
 {
     int deg = 0;
     for (auto u = 0; u < data.size(); u++)
-        deg += data[vertex][u];
+        deg += data[vertex].neighbors[u];
     return deg;
 }
 
 void AdjacencyMatrix::eulerianCycleDfs(int v, std::list<int>& cycle)
 {
     for (size_t u = 0; u < data.size(); u++) {
-        if (data[v][u]) {
-            data[v][u] = data[u][v] = false;
+        if (data[v].neighbors[u]) {
+            data[v].neighbors[u] = data[u].neighbors[v] = false;
             eulerianCycleDfs(u, cycle);
         }
     }
@@ -48,7 +48,7 @@ bool AdjacencyMatrix::hamiltonianCycleDfs(int v, std::vector<int>& visited)
 
     visited.push_back(v);
     for (size_t u = 0; u < data.size(); u++) {
-        if (data[v][u] && hamiltonianCycleDfs(u, visited)) {
+        if (data[v].neighbors[u] && hamiltonianCycleDfs(u, visited)) {
             return true;
         }
     }
@@ -101,13 +101,22 @@ void AdjacencyMatrix::printSolution(int path[], int V)
 }
 
 AdjacencyMatrix::AdjacencyMatrix(std::vector< std::vector<bool> > _data)
-    :
-    data(_data) 
-{}
+{
+    for (int it = 0; it < _data.size(); it++)
+    {
+        Vertex v;
+        v.neighbors = _data[it];
+        v.label = std::to_string(it);
+        data.push_back(v);
+    }
+}
 
 AdjacencyMatrix::AdjacencyMatrix(std::vector<bool> _data)
 {
-    data.push_back(_data);
+    Vertex v;
+    v.neighbors = _data;
+    v.label = std::to_string(data.size()+1);
+    data.push_back(v);
 }
 
 AdjacencyMatrix::AdjacencyMatrix(std::string file_path)
@@ -119,54 +128,75 @@ AdjacencyMatrix::AdjacencyMatrix(std::string file_path)
         exit(1);
     }
 
+    int i = 0;
     for (std::string line; getline(input, line);)
     {
         std::istringstream line_input(line);
+        Vertex v;
+
         std::vector<bool> line_data;
         for (bool byte; line_input >> byte;)
             line_data.push_back(byte);
-        data.push_back(line_data);
+        v.neighbors = line_data;
+        v.label = std::to_string(i++);
+        data.push_back(v);
     }
 }
 
-AdjacencyMatrix::AdjacencyMatrix(std::vector< std::vector<int> > list)
-{
-    auto listData = list;
-    std::vector< std::vector<bool> > tempData(listData.size(), std::vector<bool>(listData.size()));
-
-    for (int i = 0; i < listData.size(); i++)
-    {
-        for (int y = 0; y < listData[i].size(); y++)
-        {
-            tempData[i][listData[i][y]] = true;
-            tempData[listData[i][y]][i] = true;
-        }
-    }
-    data = tempData;
-}
+//AdjacencyMatrix::AdjacencyMatrix(std::vector< std::vector<int> > list)
+//{
+//    auto listData = list;
+//    std::vector< std::vector<bool> > tempData(listData.size(), std::vector<bool>(listData.size()));
+//
+//    for (int i = 0; i < listData.size(); i++)
+//    {
+//        for (int y = 0; y < listData[i].size(); y++)
+//        {
+//            tempData[i][listData[i][y]] = true;
+//            tempData[listData[i][y]][i] = true;
+//        }
+//    }
+//    data = tempData;
+//}
 
 void AdjacencyMatrix::setData(std::vector<std::vector<bool>> _data)
 {
-    data = _data;
+    for (int it = 0; it < _data.size(); it++)
+    {
+        Vertex v;
+        v.neighbors = _data[it];
+        v.label = std::to_string(it);
+        data.push_back(v);
+    }
 }
 
-std::vector<std::vector<bool>> AdjacencyMatrix::getData()
+std::vector<Vertex> AdjacencyMatrix::getData()
 {
     return data;
 }
 
+void AdjacencyMatrix::setLabel(std::string _label)
+{
+    label = _label;
+}
+
+std::string AdjacencyMatrix::getLabel()
+{
+    return label;
+}
+
 bool AdjacencyMatrix::is_edge(int u, int v)
 {
-    return data[u][v] == true;
+    return data[u].neighbors[v] == true;
 }
 
 void AdjacencyMatrix::print()
 {
-    std::cout << "AdjacencyMatrix[\n";
+    std::cout << "AdjacencyMatrix " << label << " [\n";
     for (auto row : data)
     {
-        std::cout << "  ";
-        for (int col : row)
+        std::cout << row.label << ":  ";
+        for (int col : row.neighbors)
             std::cout << col << " ";
         std::cout << "\n";
     }
@@ -210,15 +240,15 @@ void AdjacencyMatrix::makeEulerian()
             do
             {
                 x = rand() % data.size();
-            } while (degree(x) <= 2 || data[i][x]);
+            } while (degree(x) <= 2 || data[i].neighbors[x]);
 
-            if (data[i][x]) {
-                data[i][x] = false;
-                data[x][i] = false;
+            if (data[i].neighbors[x]) {
+                data[i].neighbors[x] = false;
+                data[x].neighbors[i] = false;
             }
             else {
-                data[i][x] = true;
-                data[x][i] = true;
+                data[i].neighbors[x] = true;
+                data[x].neighbors[i] = true;
             }
         }
     }
@@ -237,15 +267,15 @@ void AdjacencyMatrix::makeCoherent()
             do
             {
                 x = rand() % data.size();
-            } while (degree(x) <= 1 || data[i][x]);
+            } while (degree(x) <= 1 || data[i].neighbors[x]);
 
-            if (data[i][x]) {
-                data[i][x] = false;
-                data[x][i] = false;
+            if (data[i].neighbors[x]) {
+                data[i].neighbors[x] = false;
+                data[x].neighbors[i] = false;
             }
             else {
-                data[i][x] = true;
-                data[x][i] = true;
+                data[i].neighbors[x] = true;
+                data[x].neighbors[i] = true;
             }
         }
     }
@@ -310,10 +340,10 @@ void AdjacencyMatrix::removeVertex(const int toRemove)
     }
     a = 0;
     for (auto y = 0; y < data.size(); y++) {
-        for (auto i = data[y].begin(); i != data[y].end(); i++) {
+        for (auto i = data[y].neighbors.begin(); i != data[y].neighbors.end(); i++) {
             if (a++ == toRemove)
             {
-                data[y].erase(i);
+                data[y].neighbors.erase(i);
                 a = 0;
                 break;
             }
@@ -335,11 +365,11 @@ void AdjacencyMatrix::removeVertices(std::set<int> toRemove)
 
     for (auto y = 0; y < data.size(); y++) {
         a = 0;
-        auto iter = data[y].begin();
-        while (iter != data[y].end())
+        auto iter = data[y].neighbors.begin();
+        while (iter != data[y].neighbors.end())
         {
             if (toRemove.find(a++) != toRemove.end())
-                iter = data[y].erase(iter);
+                iter = data[y].neighbors.erase(iter);
             else
                 ++iter;
         }
@@ -353,7 +383,7 @@ std::ostream& operator<<(std::ostream& os, const AdjacencyMatrix& am)
     {
         for (auto ver2 = 0; ver2 < am.data.size(); ++ver2)
         {
-            os << data[ver1][ver2] << " ";
+            os << data[ver1].neighbors[ver2] << " ";
         }
         os << "\n";
     }
