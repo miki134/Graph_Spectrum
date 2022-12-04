@@ -3,6 +3,7 @@
 #include <string>
 #include <vector>
 #include <iostream>
+#include "./graph_representations.hpp"
 
 #ifndef SITO_H
  #define SITO_H
@@ -12,5 +13,5 @@
 
 int connected(int N, ta A);
 int integral(int N, ta A);
-int sito(std::vector<std::string> vec);
+int sito(std::vector<std::string> vec, AdjacencyMatrix & matrix);
 void printt(ta A);

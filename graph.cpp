@@ -61,9 +61,10 @@ int main(int argc, char **argv) {
     temp.push_back("0");
     temp.push_back(inputPath);
     temp.push_back(outputPath);
-    sito(temp);
 
     AdjacencyMatrix graph =  readAdjacencyMatrix(inputPath, true);
+    
+    sito(temp, graph);
     makeSubgraphForMatrix(graph);
     return 0;
 }

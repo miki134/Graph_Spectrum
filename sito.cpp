@@ -10,7 +10,7 @@ void printt(ta A)
     {
         std::cout << x << ":  ";
         for (int y = 0; y < 16; y++)
-            std::cout << *A[y] << " ";
+            std::cout << A[x][y] << " ";
         std::cout << "\n";
     }
     std::cout << "]\n";
@@ -126,40 +126,86 @@ int eigensymmatrix(int n, long double* a, int k1, int k2, long double* x)
             u = s + h;
             if (u > ma) ma = u;
         }
-        for (i = 1; i <= n; i++) { Lb[i] = mn; x[i] = ma; }
-        norm = fabs(mn); s = fabs(ma);
-        if (s > norm) norm = s;
-        w = ma; lambda = norm;
+
+        for (i = 1; i <= n; i++)
+        { 
+            Lb[i] = mn;
+            x[i] = ma;
+        }
+
+        norm = fabs(mn);
+        s = fabs(ma);
+
+        if (s > norm)
+            norm = s;
+
+        w = ma; 
+        lambda = norm;
+
         for (k = k2; k >= k1; k--)
         {
-            eps = 7.28e-17*norm; s = mn; i = k;
-            do {
+            eps = 7.28e-17*norm;
+            s = mn; 
+            i = k;
+
+            do 
+            {
                 cond = 0; g = Lb[i];
-                if (s < g) s = g; else { i--; if (i >= k1) cond = 1; }
+                if (s < g)
+                    s = g;
+                else 
+                { 
+                    i--;
+                    if (i >= k1)
+                        cond = 1;
+                }
             } while (cond);
+
             g = x[k];
-            if (w > g) w = g;
+            if (w > g) 
+                w = g;
+
             while (w - s > 2.91e-16*(fabs(s) + fabs(w)) + eps)
             {
-                L1 = 0; g = 1.0; t = 0.5*(s + w);
+                L1 = 0; 
+                g = 1.0;
+                t = 0.5*(s + w);
+
                 for (i = 1; i <= n; i++)
                 {
-                    if (g != 0)  g = e2[i] / g; else g = fabs(6.87e15*e[i]);
+                    if (g != 0)  
+                        g = e2[i] / g;
+                    else 
+                        g = fabs(6.87e15*e[i]);
+
                     g = d[i] - t - g;
-                    if (g < 0) L1++;
+
+                    if (g < 0)
+                        L1++;
                 }
-                if (L1 < k1) { s = t; Lb[k1] = s; }
+
+                if (L1 < k1) 
+                {
+                    s = t;
+                    Lb[k1] = s;
+                }
                 else
                 {
                     if (L1 < k)
                     {
-                        s = t; Lb[L1 + 1] = s;
-                        if (x[L1] > t) x[L1] = t;
+                        s = t; 
+                        Lb[L1 + 1] = s;
+
+                        if (x[L1] > t) 
+                            x[L1] = t;
                     }
                     else w = t;
                 }
             }
-            u = 0.5*(s + w); x[k] = u;
+
+            u = 0.5*(s + w); 
+            x[k] = u;
+
             /* if  (!(( ceil(u) - u  < 10e-5 ) || ( u - floor(u) < 10e-5 ))) { return 0; }; */
         }
     }
@@ -195,14 +241,15 @@ void AToa(int N, ta A, long double * a)
     printt(A);
 }
 
-int isintegral(int N, long double * x) {
-int i;
- long double u; 
- for (i = 1; i < N; i++) {
-  u = x[i];
-  if  (!(( ceil(u) - u  < 10e-5 ) || ( u - floor(u) < 10e-5 ))) { return 0; };
- }
- return 1; 
+int isintegral(int N, long double * x)
+{
+    int i;
+    long double u;
+    for (i = 1; i < N; i++) {
+        u = x[i];
+        if (!((ceil(u) - u < 10e-5) || (u - floor(u) < 10e-5))) { return 0; };
+    }
+    return 1;
 }
 
 
@@ -315,7 +362,19 @@ void printX(int N, long double * x) {
     printf("\n");
 }
 
-int sito(std::vector<std::string> vec)
+void convert(ta& A, AdjacencyMatrix & matrix)
+{
+    auto mm = matrix.getData();
+    for (int i = 0; i<mm.size(); i++)
+    {
+        for (int y = 0; y < mm[i].neighbors.size(); y++)
+        {
+            A[i][y] = mm[i].neighbors[y];
+        }
+    }
+}
+
+int sito(std::vector<std::string> vec, AdjacencyMatrix & matrix)
 {
     FILE *in, *out;
     char BUFFOR[1024];
@@ -324,6 +383,19 @@ int sito(std::vector<std::string> vec)
     long double x[21];
     ta A;
     int  N = 10;
+
+    convert(A, matrix);
+    printt(A);
+
+    AToa(N, A, a);
+    eigensymmatrix(N, a, 1, N, x);
+    printX(N, x);
+
+    if (isintegral(N, x))
+        printSout(N, A, const_cast<char*>(vec[2].c_str()));
+
+    return 0;
+
     long LICZ;
     if (vec.size() < 3)
     {
