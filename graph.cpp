@@ -3,6 +3,7 @@
 #include <string>
 #include <vector>
 
+#include <json/json.h>
 #include "./graph_representations.hpp"
 
 AdjacencyMatrix makeSubgraphForVertex(AdjacencyMatrix& matrix, int vertex)
@@ -44,10 +45,14 @@ AdjacencyMatrix readAdjacencyMatrix(std::string& path, bool print = false)
     return matrix;
 }
 
+#pragma warning(disable : 4996)
 int main(int argc, char **argv) {
 
     std::string inputPath = ".\\data\\";
     std::string outputPath = ".\\export\\";
+
+    Json::Value body;
+    Json::Reader reader(Json::Features::all());
 
     inputPath += "test_10.txt";
     AdjacencyMatrix graph =  readAdjacencyMatrix(inputPath, true);
