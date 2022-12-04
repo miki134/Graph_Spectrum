@@ -5,6 +5,7 @@
 
 #include <json/json.h>
 #include "./graph_representations.hpp"
+#include "sito.hpp"
 
 AdjacencyMatrix makeSubgraphForVertex(AdjacencyMatrix& matrix, int vertex)
 {
@@ -49,12 +50,19 @@ AdjacencyMatrix readAdjacencyMatrix(std::string& path, bool print = false)
 int main(int argc, char **argv) {
 
     std::string inputPath = ".\\data\\";
-    std::string outputPath = ".\\export\\";
+    std::string outputPath = ".\\export\\exp.txt";
 
     Json::Value body;
     Json::Reader reader(Json::Features::all());
 
     inputPath += "test_10.txt";
+
+    std::vector<std::string> temp;
+    temp.push_back("0");
+    temp.push_back(inputPath);
+    temp.push_back(outputPath);
+    sito(temp);
+
     AdjacencyMatrix graph =  readAdjacencyMatrix(inputPath, true);
     makeSubgraphForMatrix(graph);
     return 0;
