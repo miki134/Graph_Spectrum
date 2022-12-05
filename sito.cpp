@@ -6,10 +6,10 @@
 void printt(ta A)
 {
     std::cout << " [\n";
-    for (int x = 0; x < 16; x++)
+    for (int x = 0; x < A.size(); x++)
     {
         std::cout << x << ":  ";
-        for (int y = 0; y < 16; y++)
+        for (int y = 0; y < A[x].size(); y++)
             std::cout << A[x][y] << " ";
         std::cout << "\n";
     }
@@ -255,45 +255,47 @@ int isintegral(int N, long double * x)
 
 int integral(int N, ta A)
 {
- long double a[400];
- long double x[21];
- int st; 
- int sum;
- int poz, i, j;
+    long double a[400];
+    long double x[21];
+    int st;
+    int sum;
+    int poz, i, j;
 
- for (i = 0 ; i < N ; i++) A[i][i] = 0;
- 
- a[0] = 0.0;
- poz = 1; 
- for ( i = 0 ; i < N; i++)
- {
-  for ( j = 0; j <= i ; j++)
-   { if (A[i][j]==1) a[poz++]=1.0; else a[poz++]=0.0;}
- }
- return eigensymmatrix(N, a, 1, N,  x);
+    for (i = 0; i < N; i++) A[i][i] = 0;
+
+    a[0] = 0.0;
+    poz = 1;
+    for (i = 0; i < N; i++)
+    {
+        for (j = 0; j <= i; j++)
+        {
+            if (A[i][j] == 1) a[poz++] = 1.0; else a[poz++] = 0.0;
+        }
+    }
+    return eigensymmatrix(N, a, 1, N, x);
 }
 
 void spoj2(int N, ta A, int k)
 {
-  int i;
-  for ( i = 0 ; i < N; i++)
-   if ((i != k)  && (A[i][k] == 1) && (A[i][i] == 0)) { A[i][i]=1; spoj2( N, A , i); }
-} /* spoj2 */
+    int i;
+    for (i = 0; i < N; i++)
+        if ((i != k) && (A[i][k] == 1) && (A[i][i] == 0)) { A[i][i] = 1; spoj2(N, A, i); }
+}
 
 int connected(int N, ta A)
 {
- int i, Result;
- A[0][0] = 1;
- for (i = 1; i < N; i++) A[i][i] = 0;
- 
- Result = 1; 
- for (i = 0; i < N ; i++)
-  {
-   if (A[i][i] == 0) { Result = 0; break; }
-   spoj2(N,A,i);
-  }
-  return Result;  
-} /* connected */
+    int i, Result;
+    A[0][0] = 1;
+    for (i = 1; i < N; i++) A[i][i] = 0;
+
+    Result = 1;
+    for (i = 0; i < N; i++)
+    {
+        if (A[i][i] == 0) { Result = 0; break; }
+        spoj2(N, A, i);
+    }
+    return Result;
+}
 
 /** format .g6, for n <= 6 */ 
 void BMKdecode(char * BUFFOR, int *N, ta A)
@@ -329,11 +331,13 @@ void BMKdecode(char * BUFFOR, int *N, ta A)
 }
 
 void dop(int N, ta A)
-{ 
- int i,j;
- for (i = 0; i < N - 1; i++)
-  for ( j = i + 1; j < N; j++)
-   { A[i][j] = A[j][i] = 1 - A[j][i]; }
+{
+    int i, j;
+    for (i = 0; i < N - 1; i++)
+        for (j = i + 1; j < N; j++)
+        {
+            A[i][j] = A[j][i] = 1 - A[j][i];
+        }
 }
 
 /** 
@@ -342,16 +346,16 @@ void dop(int N, ta A)
 */
 void printSout(int N, ta A, char * filename)
 {
- FILE *out;
- int i, j; 
- out = fopen(filename,"ab");
- for (i = 0; i < N - 1; i++)
-  { 
-    for ( j = i + 1; j < N; j++)
-    if (A[i][j]) putc('1',out); else putc('0',out);
-  } 
-  putc('\n',out);
- fclose(out);
+    FILE *out;
+    int i, j;
+    out = fopen(filename, "ab");
+    for (i = 0; i < N - 1; i++)
+    {
+        for (j = i + 1; j < N; j++)
+            if (A[i][j]) putc('1', out); else putc('0', out);
+    }
+    putc('\n', out);
+    fclose(out);
 }
 
 /* spektra sa w odwrotnym porzadku np. -1, -1, -1, ..., n-1*/
@@ -367,22 +371,20 @@ void convert(ta& A, AdjacencyMatrix & matrix)
     auto mm = matrix.getData();
     for (int i = 0; i<mm.size(); i++)
     {
+        A.push_back(std::vector<int>());
         for (int y = 0; y < mm[i].neighbors.size(); y++)
         {
-            A[i][y] = mm[i].neighbors[y];
+            A[i].push_back(mm[i].neighbors[y]);
         }
     }
 }
 
-int sito(std::vector<std::string> vec, AdjacencyMatrix & matrix)
+std::vector<long double> sito(std::vector<std::string> vec, AdjacencyMatrix & matrix)
 {
-    FILE *in, *out;
-    char BUFFOR[1024];
-
-    long double a[400];
-    long double x[21];
+    long double * a = new long double[matrix.size()*matrix.size()];
+    long double * x = new long double[matrix.size()];
     ta A;
-    int  N = 10;
+    int  N = matrix.size();
 
     convert(A, matrix);
     printt(A);
@@ -394,65 +396,11 @@ int sito(std::vector<std::string> vec, AdjacencyMatrix & matrix)
     if (isintegral(N, x))
         printSout(N, A, const_cast<char*>(vec[2].c_str()));
 
-    return 0;
+    std::vector<long double> ret;
+    for(int it = 0; it < matrix.size(); it++)
+        ret.push_back(x[it]);
 
-    long LICZ;
-    if (vec.size() < 3)
-    {
-        printf("Za malo parametrow\n");
-        //exit(0);
-        return 0;
-    }
-    else
-    {
+    matrix.setSpectrum(ret);
 
-        printf("Plik zrodowy       :%s\n", vec[1].c_str());
-        printf("Plik przeznaczenia :%s\n", vec[2].c_str());
-
-        in = fopen(vec[1].c_str(), "rb");
-        if (in != NULL)
-        {
-            /* printf("Dostep do pliku zrodlowego OK!\n"); */
-            out = fopen(vec[2].c_str(), "wb"); fclose(out);
-            LICZ = 0;
-            while (1)
-            {
-                if (fgets(BUFFOR, 1024, in) != NULL)
-                {
-                    LICZ++;
-                    BMKdecode(BUFFOR, &N, A);
-                    AToa(N, A, a);//
-                    eigensymmatrix(N, a, 1, N, x);
-                    printX(N, x);
-
-                    if (isintegral(N, x))
-                        printSout(N, A, const_cast<char*>(vec[2].c_str()));
-
-
-                    /*
-                     if (connected(N,A))
-                     {
-                       if (integral(N, A)) { printSout(N, A, argv[2]); }
-                       dop(N,A);
-                       if (connected(N,A) && integral(N, A)) { printSout(N, A, argv[2]); }
-                     }
-                    else
-                     {
-                       dop(N,A);
-                       if (integral(N, A)) { printSout(N, A, argv[2]); }
-                     }
-                     */
-                }
-                else break;
-
-            }
-            /* printf("\nLicznik %ld\n", LICZ); */
-
-            fclose(in);
-        }
-        else printf("Brak pliku zrodlowego\n");
-    }
-
-    std::cout << "LICZ" << LICZ;
-    return 0;
+    return ret;
 }

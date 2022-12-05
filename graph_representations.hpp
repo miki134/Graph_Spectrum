@@ -23,6 +23,7 @@ class AdjacencyMatrix
 private:
     std::vector<Vertex> data;
     std::string label;
+    std::vector<long double> spectrum;
 
     int degree(int vertex);
     void eulerianCycleDfs(int v, std::list<int> &cycle);
@@ -31,12 +32,21 @@ private:
     bool isSafe(int v, std::vector<std::vector<bool>> graph, int path[], int pos);
     bool hamCycleUtil(std::vector<std::vector<bool>> graph, int path[], int pos);
     void printSolution(int path[], int V);
-    
+
 public:
-    AdjacencyMatrix(std::vector< std::vector<bool> > _data);
+    AdjacencyMatrix();
+    AdjacencyMatrix(std::vector<Vertex> _data);
+    AdjacencyMatrix(std::vector<std::vector<bool>> _data);
     AdjacencyMatrix(std::vector<bool> _data);
     AdjacencyMatrix(std::string file_path);
     //AdjacencyMatrix(std::vector< std::vector<int> > list);
+
+    void setSpectrum(std::vector<long double> _spectrum);
+    std::vector<long double> getSpectrum();
+
+    int size() const;
+
+    void setNullGraph();
 
     void setData(std::vector<std::vector<bool>> _data);
     std::vector<Vertex> getData();

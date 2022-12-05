@@ -100,6 +100,15 @@ void AdjacencyMatrix::printSolution(int path[], int V)
     std::cout << path[0] << std::endl;
 }
 
+AdjacencyMatrix::AdjacencyMatrix()
+{
+}
+
+AdjacencyMatrix::AdjacencyMatrix(std::vector<Vertex> _data)
+{
+    data = _data;
+}
+
 AdjacencyMatrix::AdjacencyMatrix(std::vector< std::vector<bool> > _data)
 {
     for (int it = 0; it < _data.size(); it++)
@@ -143,6 +152,16 @@ AdjacencyMatrix::AdjacencyMatrix(std::string file_path)
     }
 }
 
+void AdjacencyMatrix::setSpectrum(std::vector<long double> _spectrum)
+{
+    spectrum = _spectrum;
+}
+
+std::vector<long double> AdjacencyMatrix::getSpectrum()
+{
+    return spectrum;
+}
+
 //AdjacencyMatrix::AdjacencyMatrix(std::vector< std::vector<int> > list)
 //{
 //    auto listData = list;
@@ -158,6 +177,21 @@ AdjacencyMatrix::AdjacencyMatrix(std::string file_path)
 //    }
 //    data = tempData;
 //}
+
+int AdjacencyMatrix::size() const
+{
+    return data.size();
+}
+
+void AdjacencyMatrix::setNullGraph()
+{
+    for (auto &it : data)
+    {
+        for (int it2 = 0; it2 < it.neighbors.size(); it2++) {
+            it.neighbors[it2] = 0;
+        }
+    }
+}
 
 void AdjacencyMatrix::setData(std::vector<std::vector<bool>> _data)
 {

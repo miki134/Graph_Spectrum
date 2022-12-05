@@ -27,13 +27,15 @@ AdjacencyMatrix makeSubgraphForVertex(AdjacencyMatrix& matrix, int vertex)
     return subGraph;
 }
 
-void makeSubgraphForMatrix(AdjacencyMatrix& matrix)
+std::vector<AdjacencyMatrix> makeSubgraphForMatrix(AdjacencyMatrix& matrix)
 {
+    std::vector<AdjacencyMatrix> ret;
     auto data = matrix.getData();
     for (int it = 0; it < data.size(); it++)
     {
-        makeSubgraphForVertex(matrix, it).print();
+        ret.push_back(makeSubgraphForVertex(matrix, it));
     }
+    return ret;
 }
 
 AdjacencyMatrix readAdjacencyMatrix(std::string& path, bool print = false)
@@ -46,14 +48,33 @@ AdjacencyMatrix readAdjacencyMatrix(std::string& path, bool print = false)
     return matrix;
 }
 
+bool compareDouble(long double db1, long double db2)
+{
+    int epsilon = 4;
+    int multi = epsilon * 10;
+    return (std::round(db1*multi) / multi) == (std::round(db2*multi) / multi);
+}
+
+bool compareSpectrum(std::vector<long double> sp1, std::vector<long double> sp2)
+{
+    if (sp1.size() != sp2.size())
+        return false;
+
+    bool ret = true;
+    for (int i = 0; i < sp1.size(); i++)
+    {
+        if (!compareDouble(sp1[i], sp2[i]))
+            ret = false;
+    }
+
+    return ret;
+}
+
 #pragma warning(disable : 4996)
 int main(int argc, char **argv) {
 
     std::string inputPath = ".\\data\\";
     std::string outputPath = ".\\export\\exp.txt";
-
-    Json::Value body;
-    Json::Reader reader(Json::Features::all());
 
     inputPath += "test_10.txt";
 
@@ -64,7 +85,27 @@ int main(int argc, char **argv) {
 
     AdjacencyMatrix graph =  readAdjacencyMatrix(inputPath, true);
     
-    sito(temp, graph);
-    makeSubgraphForMatrix(graph);
+    auto subGraphs = makeSubgraphForMatrix(graph);
+
+    for (auto& it : subGraphs) {
+        sito(temp, it);
+    }
+
+    AdjacencyMatrix spectrumGraph(graph);
+    spectrumGraph.setNullGraph();
+    auto spectrumGraphData = spectrumGraph.getData();
+
+    for (int i = 0; i < subGraphs.size(); i++)
+    {
+        for (int y = 0; y < subGraphs.size(); y++)
+        {
+            if (compareSpectrum(subGraphs[i].getSpectrum(), subGraphs[y].getSpectrum()))
+                spectrumGraphData[i].neighbors[y] = 1;
+        }
+    }
+
+    spectrumGraph = AdjacencyMatrix(spectrumGraphData);
+    spectrumGraph.print();
+
     return 0;
 }
