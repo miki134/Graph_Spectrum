@@ -70,30 +70,35 @@ bool compareSpectrum(std::vector<long double> sp1, std::vector<long double> sp2)
     return ret;
 }
 
-#pragma warning(disable : 4996)
-int main(int argc, char **argv) {
+Json::Value createResult(AdjacencyMatrix &spectrumMatrix)
+{
+    Json::Value resultJson;
+    Json::Value vec(Json::arrayValue);
+    resultJson["neighborhoodDegree"] = 1;
+    resultJson["matrixUnrollingType"] = "row-majorOrder";
 
-    std::string inputPath = ".\\data\\";
-    std::string outputPath = ".\\export\\exp.txt";
+    auto order = spectrumMatrix.transformToRowOrder();
 
-    inputPath += "test_10.txt";
+    for (auto it : order)
+        vec.append(it);
 
-    std::vector<std::string> temp;
-    temp.push_back("0");
-    temp.push_back(inputPath);
-    temp.push_back(outputPath);
+    resultJson["spectrumMatrix"] = vec;
 
-    AdjacencyMatrix graph =  readAdjacencyMatrix(inputPath, true);
-    
+    return resultJson;
+}
+
+void calculateSpectrumMatrix(std::string &inputPath, std::string& outputPath)
+{
+    AdjacencyMatrix graph = readAdjacencyMatrix(inputPath, false);
+
     auto subGraphs = makeSubgraphForMatrix(graph);
-
     for (auto& it : subGraphs) {
-        sito(temp, it);
+        sito(it);
     }
 
-    AdjacencyMatrix spectrumGraph(graph);
-    spectrumGraph.setNullGraph();
-    auto spectrumGraphData = spectrumGraph.getData();
+    AdjacencyMatrix spectrumMatrix(graph);
+    spectrumMatrix.setNullGraph();
+    auto spectrumGraphData = spectrumMatrix.getData();
 
     for (int i = 0; i < subGraphs.size(); i++)
     {
@@ -104,8 +109,25 @@ int main(int argc, char **argv) {
         }
     }
 
-    spectrumGraph = AdjacencyMatrix(spectrumGraphData);
-    spectrumGraph.print();
+    spectrumMatrix = AdjacencyMatrix(spectrumGraphData);
+    spectrumMatrix.print();
 
+    auto result = createResult(spectrumMatrix);
+    //std::cout << result << std::endl;
+
+    std::fstream file(outputPath);
+    file << result << std::endl;
+
+}
+
+#pragma warning(disable : 4996)
+int main(int argc, char **argv) {
+
+    std::string inputPath = ".\\data\\test_10.txt";
+    std::string outputPath = ".\\export\\export.json";
+
+    calculateSpectrumMatrix(inputPath, outputPath);
+
+    
     return 0;
 }

@@ -152,6 +152,36 @@ AdjacencyMatrix::AdjacencyMatrix(std::string file_path)
     }
 }
 
+std::vector<int> AdjacencyMatrix::transformToRowOrder()
+{
+    std::vector<int> result;
+
+    for (auto it : data)
+    {
+        for (auto it2 : it.neighbors)
+        {
+            result.push_back(it2);
+        }
+    }
+
+    return result;
+}
+
+std::vector<int> AdjacencyMatrix::transformToColumnOrder()
+{
+    std::vector<int> result;
+
+    for (int it2 = 0; it2 < data.size(); it2++)
+    {
+        for (auto it : data)
+        {
+            result.push_back(it.neighbors[it2]);
+        }
+    }
+
+    return result;
+}
+
 void AdjacencyMatrix::setSpectrum(std::vector<long double> _spectrum)
 {
     spectrum = _spectrum;

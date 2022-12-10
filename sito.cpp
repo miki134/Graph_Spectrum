@@ -238,7 +238,7 @@ void AToa(int N, ta A, long double * a)
                 a[poz++]=0.0;
         }
     }
-    printt(A);
+    //printt(A);
 }
 
 int isintegral(int N, long double * x)
@@ -379,7 +379,7 @@ void convert(ta& A, AdjacencyMatrix & matrix)
     }
 }
 
-std::vector<long double> sito(std::vector<std::string> vec, AdjacencyMatrix & matrix)
+std::vector<long double> sito(AdjacencyMatrix & matrix)
 {
     long double * a = new long double[matrix.size()*matrix.size()];
     long double * x = new long double[matrix.size()];
@@ -387,14 +387,14 @@ std::vector<long double> sito(std::vector<std::string> vec, AdjacencyMatrix & ma
     int  N = matrix.size();
 
     convert(A, matrix);
-    printt(A);
+    //printt(A);
 
     AToa(N, A, a);
     eigensymmatrix(N, a, 1, N, x);
-    printX(N, x);
+    //printX(N, x);
 
-    if (isintegral(N, x))
-        printSout(N, A, const_cast<char*>(vec[2].c_str()));
+    //if (isintegral(N, x))
+        //printSout(N, A, const_cast<char*>(vec[2].c_str()));
 
     std::vector<long double> ret;
     for(int it = 0; it < matrix.size(); it++)
