@@ -41,8 +41,13 @@ public:
     AdjacencyMatrix(std::string file_path);
     //AdjacencyMatrix(std::vector< std::vector<int> > list);
 
-    std::vector<int> transformToRowOrder();
-    std::vector<int> transformToColumnOrder();
+    int getNumberOfVertices();
+    int getNumberOfEdges();
+
+    std::string toGraphViz();
+
+    std::vector<int> toRowOrder();
+    std::vector<int> toColumnOrder();
 
     void setSpectrum(std::vector<long double> _spectrum);
     std::vector<long double> getSpectrum();

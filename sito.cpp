@@ -22,7 +22,10 @@ int eigensymmatrix(int n, long double* a, int k1, int k2, long double* x)
     int i, j, k, k3, k4, L, L1, z;
     long double lambda, eps, g, h, ma, mn, norm, s, t, u, w;
     int cond;
-    long double d[20], e[20], e2[20], Lb[20];
+    long double *d = new long double[n];
+    long double *e = new long double[n];
+    long double *e2 = new long double[n];
+    long double *Lb = new long double[n];
 
     if ((1 <= k1) && (k1 <= k2) && (k2 <= n))
     {
@@ -384,7 +387,7 @@ std::vector<long double> sito(AdjacencyMatrix & matrix)
     long double * a = new long double[matrix.size()*matrix.size()];
     long double * x = new long double[matrix.size()];
     ta A;
-    int  N = matrix.size();
+    int N = matrix.size();
 
     convert(A, matrix);
     //printt(A);

@@ -70,19 +70,26 @@ bool compareSpectrum(std::vector<long double> sp1, std::vector<long double> sp2)
     return ret;
 }
 
-Json::Value createResult(AdjacencyMatrix &spectrumMatrix)
+Json::Value createResult(AdjacencyMatrix &graph, AdjacencyMatrix &spectrumMatrix)
 {
     Json::Value resultJson;
-    Json::Value vec(Json::arrayValue);
     resultJson["neighborhoodDegree"] = 1;
     resultJson["matrixUnrollingType"] = "row-majorOrder";
+    resultJson["numberOfVertices"] = graph.getNumberOfVertices();
+    resultJson["numberOfEdges"] = graph.getNumberOfEdges();
 
-    auto order = spectrumMatrix.transformToRowOrder();
+    Json::Value vec1(Json::arrayValue);
+    auto graphOrder = graph.toRowOrder();
+    for (auto it : graphOrder)
+        vec1.append(it);
+    resultJson["graph"] = vec1;
 
+    Json::Value vec2(Json::arrayValue);
+    auto order = spectrumMatrix.toRowOrder();
     for (auto it : order)
-        vec.append(it);
+        vec2.append(it);
 
-    resultJson["spectrumMatrix"] = vec;
+    resultJson["spectrumMatrix"] = vec2;
 
     return resultJson;
 }
@@ -109,25 +116,38 @@ void calculateSpectrumMatrix(std::string &inputPath, std::string& outputPath)
         }
     }
 
+    std::cout << graph.toGraphViz();
+    
     spectrumMatrix = AdjacencyMatrix(spectrumGraphData);
-    spectrumMatrix.print();
+    //spectrumMatrix.print();
 
-    auto result = createResult(spectrumMatrix);
+    auto result = createResult(graph, spectrumMatrix);
     //std::cout << result << std::endl;
 
-    std::fstream file(outputPath);
+    std::fstream file(outputPath, std::fstream::out);
     file << result << std::endl;
-
 }
 
 #pragma warning(disable : 4996)
 int main(int argc, char **argv) {
 
-    std::string inputPath = ".\\data\\test_10.txt";
-    std::string outputPath = ".\\export\\export.json";
+    std::string inputPath;
+    std::string outputPath;
+
+    if (argc == 1) {
+        inputPath = ".\\test_10.txt";
+        outputPath = ".\\export.json";
+    }
+    else if (argc == 2) {
+        inputPath = argv[1];
+        outputPath = ".\\export.json";
+    }
+    else if (argc == 3) {
+        inputPath = argv[1];
+        outputPath = argv[2];
+    }
 
     calculateSpectrumMatrix(inputPath, outputPath);
-
     
     return 0;
 }

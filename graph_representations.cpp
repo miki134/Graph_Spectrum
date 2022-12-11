@@ -152,7 +152,49 @@ AdjacencyMatrix::AdjacencyMatrix(std::string file_path)
     }
 }
 
-std::vector<int> AdjacencyMatrix::transformToRowOrder()
+int AdjacencyMatrix::getNumberOfVertices()
+{
+    return size();
+}
+
+int AdjacencyMatrix::getNumberOfEdges()
+{
+    int count = 0;
+    for (unsigned int y = 0; y < data.size(); y++)
+    {
+        for (unsigned int x = 0; x < y; x++)
+        {
+            if (is_edge(y, x))
+                count++;
+        }
+    }
+    return count;
+}
+
+std::string AdjacencyMatrix::toGraphViz()
+{
+    auto a = data;
+    int n = a.size();
+    std::string s = "graph g {\n";
+    for (int i = 0; i < n; i++)
+    {
+        s += std::to_string(i + 1) + ";\n";
+    }
+
+    for (int i = 0; i < n; i++)
+    {
+        for (int j = 0; j < i; j++)
+        {
+            if(a[i].neighbors[j] == 1)
+                s += std::to_string(i + 1) + "--" + std::to_string(j + 1) + ";\n";
+        }
+    }
+
+    s += "}\n";
+    return s;
+}
+
+std::vector<int> AdjacencyMatrix::toRowOrder()
 {
     std::vector<int> result;
 
@@ -167,7 +209,7 @@ std::vector<int> AdjacencyMatrix::transformToRowOrder()
     return result;
 }
 
-std::vector<int> AdjacencyMatrix::transformToColumnOrder()
+std::vector<int> AdjacencyMatrix::toColumnOrder()
 {
     std::vector<int> result;
 
@@ -191,22 +233,6 @@ std::vector<long double> AdjacencyMatrix::getSpectrum()
 {
     return spectrum;
 }
-
-//AdjacencyMatrix::AdjacencyMatrix(std::vector< std::vector<int> > list)
-//{
-//    auto listData = list;
-//    std::vector< std::vector<bool> > tempData(listData.size(), std::vector<bool>(listData.size()));
-//
-//    for (int i = 0; i < listData.size(); i++)
-//    {
-//        for (int y = 0; y < listData[i].size(); y++)
-//        {
-//            tempData[i][listData[i][y]] = true;
-//            tempData[listData[i][y]][i] = true;
-//        }
-//    }
-//    data = tempData;
-//}
 
 int AdjacencyMatrix::size() const
 {
