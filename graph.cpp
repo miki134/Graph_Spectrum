@@ -7,7 +7,7 @@
 #include "./graph_representations.hpp"
 #include "sito.hpp"
 
-AdjacencyMatrix makeSubgraphForVertex(AdjacencyMatrix& matrix, int vertex)
+AdjacencyMatrix makeFirstDegreeSubgraph(AdjacencyMatrix& matrix, int vertex)
 {
     auto v = matrix.getData()[vertex];
 
@@ -27,13 +27,41 @@ AdjacencyMatrix makeSubgraphForVertex(AdjacencyMatrix& matrix, int vertex)
     return subGraph;
 }
 
-std::vector<AdjacencyMatrix> makeSubgraphForMatrix(AdjacencyMatrix& matrix)
+AdjacencyMatrix makeSecondDegreeSubgraph(AdjacencyMatrix& matrix, int vertex)
+{
+    auto v = matrix.getData()[vertex];
+
+    std::set<int> toRemove;
+    toRemove.insert(vertex);
+
+    std::set<int> secondDegreeNeighborhood;
+    auto neighborhood = matrix.getNeighborhoodForVertex(vertex);
+    for (auto it : neighborhood)
+    {
+        auto tempNeighborhood = matrix.getNeighborhoodForVertex(it);
+        secondDegreeNeighborhood.insert(tempNeighborhood.begin(), tempNeighborhood.end());
+    }
+    secondDegreeNeighborhood.insert(neighborhood.begin(), neighborhood.end());
+
+    AdjacencyMatrix subGraph(matrix);
+    subGraph.setLabel("vertex " + std::to_string(vertex));
+    for (int i = 0; i < v.neighbors.size(); i++)
+    {
+        if (secondDegreeNeighborhood.find(i) == secondDegreeNeighborhood.end())
+            toRemove.insert(i);
+    }
+    subGraph.removeVertices(toRemove);
+    return subGraph;
+}
+
+template<typename function>
+std::vector<AdjacencyMatrix> makeNeighborhoodSubgraphs(AdjacencyMatrix& matrix, function fun)
 {
     std::vector<AdjacencyMatrix> ret;
     auto data = matrix.getData();
     for (int it = 0; it < data.size(); it++)
     {
-        ret.push_back(makeSubgraphForVertex(matrix, it));
+        ret.push_back(fun(matrix, it));
     }
     return ret;
 }
@@ -94,15 +122,8 @@ Json::Value createResult(AdjacencyMatrix &graph, AdjacencyMatrix &spectrumMatrix
     return resultJson;
 }
 
-void calculateSpectrumMatrix(std::string &inputPath, std::string& outputPath)
+AdjacencyMatrix makeSpectrumMatrix(AdjacencyMatrix& graph, std::vector<AdjacencyMatrix> &subGraphs)
 {
-    AdjacencyMatrix graph = readAdjacencyMatrix(inputPath, false);
-
-    auto subGraphs = makeSubgraphForMatrix(graph);
-    for (auto& it : subGraphs) {
-        sito(it);
-    }
-
     AdjacencyMatrix spectrumMatrix(graph);
     spectrumMatrix.setNullGraph();
     auto spectrumGraphData = spectrumMatrix.getData();
@@ -116,13 +137,29 @@ void calculateSpectrumMatrix(std::string &inputPath, std::string& outputPath)
         }
     }
 
-    std::cout << graph.toGraphViz();
-    
     spectrumMatrix = AdjacencyMatrix(spectrumGraphData);
-    //spectrumMatrix.print();
 
+    return spectrumMatrix;
+}
+
+void calculateSpectrumMatrix(std::string &inputPath, std::string& outputPath, int mode)
+{
+    AdjacencyMatrix graph = readAdjacencyMatrix(inputPath, false);
+
+    std::vector<AdjacencyMatrix> subGraphs;
+    if (mode == 1)
+        subGraphs = makeNeighborhoodSubgraphs(graph, makeFirstDegreeSubgraph);
+    else if (mode == 2)
+        subGraphs = makeNeighborhoodSubgraphs(graph, makeSecondDegreeSubgraph);
+    
+    for (auto& it : subGraphs)
+        sito(it);
+
+    //std::cout << graph.toGraphViz();
+
+    auto spectrumMatrix = makeSpectrumMatrix(graph, subGraphs);
     auto result = createResult(graph, spectrumMatrix);
-    //std::cout << result << std::endl;
+    spectrumMatrix.print();
 
     std::fstream file(outputPath, std::fstream::out);
     file << result << std::endl;
@@ -133,21 +170,30 @@ int main(int argc, char **argv) {
 
     std::string inputPath;
     std::string outputPath;
+    int spectrumMode;
 
     if (argc == 1) {
         inputPath = ".\\test_10.txt";
+        spectrumMode = 1;
         outputPath = ".\\export.json";
     }
     else if (argc == 2) {
-        inputPath = argv[1];
+        spectrumMode = std::stoi(argv[1]);
+        inputPath = ".\\test_10.txt";
         outputPath = ".\\export.json";
     }
     else if (argc == 3) {
-        inputPath = argv[1];
-        outputPath = argv[2];
+        spectrumMode = std::stoi(argv[1]);
+        inputPath = argv[2];
+        outputPath = ".\\export.json";
+    }
+    else if (argc == 4) {
+        spectrumMode = std::stoi(argv[1]);
+        inputPath = argv[2];
+        outputPath = argv[3];
     }
 
-    calculateSpectrumMatrix(inputPath, outputPath);
+    calculateSpectrumMatrix(inputPath, outputPath, spectrumMode);
     
     return 0;
 }

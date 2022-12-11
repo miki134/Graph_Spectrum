@@ -41,6 +41,8 @@ public:
     AdjacencyMatrix(std::string file_path);
     //AdjacencyMatrix(std::vector< std::vector<int> > list);
 
+    std::set<int> getNeighborhoodForVertex(int vertex);
+
     int getNumberOfVertices();
     int getNumberOfEdges();
 

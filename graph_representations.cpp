@@ -152,6 +152,17 @@ AdjacencyMatrix::AdjacencyMatrix(std::string file_path)
     }
 }
 
+std::set<int> AdjacencyMatrix::getNeighborhoodForVertex(int vertex)
+{
+    std::set<int> ret;
+
+    for (int it = 0; it < data[vertex].neighbors.size(); it++)
+        if (data[vertex].neighbors[it])
+            ret.insert(it);
+
+    return ret;
+}
+
 int AdjacencyMatrix::getNumberOfVertices()
 {
     return size();
@@ -178,7 +189,7 @@ std::string AdjacencyMatrix::toGraphViz()
     std::string s = "graph g {\n";
     for (int i = 0; i < n; i++)
     {
-        s += std::to_string(i + 1) + ";\n";
+        s += a[i].label + ";\n";
     }
 
     for (int i = 0; i < n; i++)
@@ -186,7 +197,7 @@ std::string AdjacencyMatrix::toGraphViz()
         for (int j = 0; j < i; j++)
         {
             if(a[i].neighbors[j] == 1)
-                s += std::to_string(i + 1) + "--" + std::to_string(j + 1) + ";\n";
+                s += a[i].label + "--" + a[j].label + ";\n";
         }
     }
 
