@@ -33,7 +33,7 @@ struct GraphVizView {
         {
             ret += "v" + it.getLabel() + " [shape=Msquare, label=\" \n " + it.toStringMatrix() + " \nVERTEX " + it.getLabel() + "\n \"]\n";
 
-            ret += "sv" + it.getLabel() + " [shape=Msquare, label=\" \n " + it.getSpectrumAsString() + " \nSPECTRUM VERTEX " + it.getLabel() + "\n \"]\n";
+            ret += "sv" + it.getLabel() + " [shape=box, label=\" \n " + it.getSpectrumAsString() + " \nSPECTRUM VERTEX " + it.getLabel() + "\n \"]\n";
 
             ret += "M1 -> v" + it.getLabel() + " -> sv" + it.getLabel() + "\n";
         }
