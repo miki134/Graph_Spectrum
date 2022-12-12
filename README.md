@@ -1,4 +1,4 @@
-## Graoh Spectrum
+## Graph Spectrum
 Invariants related to the induced neighborhood of a vertex
 
 ## Dependencies
