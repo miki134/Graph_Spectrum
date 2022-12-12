@@ -269,6 +269,14 @@ std::vector<long double> AdjacencyMatrix::getSpectrum()
     return spectrum;
 }
 
+
+template < typename Type > std::string to_str(const Type & t)
+{
+    std::ostringstream os;
+    os << t;
+    return os.str();
+}
+
 std::string AdjacencyMatrix::getSpectrumAsString()
 {
     std::string ret = "[";
@@ -276,7 +284,7 @@ std::string AdjacencyMatrix::getSpectrumAsString()
 
     for (int it = 0; it < spectrum.size(); it++) {
         int multi = EPS * 10;
-        ret += std::to_string(std::round(it*multi) / multi);
+        ret += to_str(std::round(spectrum[it]*multi) / multi);
         //ret += std::to_string(it);
 
         if (it < spectrum.size() - 1)
