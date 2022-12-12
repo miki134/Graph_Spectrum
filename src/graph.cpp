@@ -2,10 +2,11 @@
 #include <fstream>
 #include <string>
 #include <vector>
-
 #include <json/json.h>
+
 #include "./graph_representations.hpp"
-#include "sito.hpp"
+#include "./sito.hpp"
+#include "./graph_generator.hpp"
 
 struct GraphVizView {
     AdjacencyMatrix graph;
@@ -207,8 +208,28 @@ void calculateSpectrumMatrix(std::string &inputPath, std::string& outputPath, in
     file << result << std::endl;
 }
 
+void generateGraph(int vertices, double density, std::string path)
+{
+    GraphGenerator gen(vertices, density);
+    gen.generateMS(path);
+}
+
+void showGraphViz(std::string & path)
+{
+    AdjacencyMatrix graph(path);
+    std::cout << graph.toGraphViz();
+}
+
+std::vector<std::string> parse_args(int argc, char** argv) {
+    std::vector<std::string> args;
+    for (int i = 0; i < argc; i++)
+        args.push_back(argv[i]);
+    return args;
+}
+
 #pragma warning(disable : 4996)
 int main(int argc, char **argv) {
+    auto args = parse_args(argc, argv);
 
     std::string inputPath;
     std::string outputPath;
@@ -225,14 +246,29 @@ int main(int argc, char **argv) {
         outputPath = ".\\export.json";
     }
     else if (argc == 3) {
-        spectrumMode = std::stoi(argv[1]);
-        inputPath = argv[2];
-        outputPath = ".\\export.json";
+        if (args[1] == "showGV")
+        {
+            showGraphViz(args[2]);
+            return 0;
+        }
+        else
+        {
+            spectrumMode = std::stoi(argv[1]);
+            inputPath = argv[2];
+            outputPath = ".\\export.json";
+        }
     }
     else if (argc == 4) {
         spectrumMode = std::stoi(argv[1]);
         inputPath = argv[2];
         outputPath = argv[3];
+    }
+    else if (argc == 5) {
+        if (args[1] == "gen")
+        {
+            generateGraph(std::stoi(argv[2]), std::stof(argv[3]), argv[4]);
+            return 0;
+        }
     }
 
     calculateSpectrumMatrix(inputPath, outputPath, spectrumMode);
