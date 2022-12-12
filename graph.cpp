@@ -7,6 +7,46 @@
 #include "./graph_representations.hpp"
 #include "sito.hpp"
 
+struct GraphVizView {
+    AdjacencyMatrix graph;
+    AdjacencyMatrix spectrumMatrix;
+    std::vector<AdjacencyMatrix> adjacencySubgraphs;
+
+    GraphVizView(AdjacencyMatrix & graph, AdjacencyMatrix& spectrumMatrix, std::vector<AdjacencyMatrix>& adjacencySubgraphs)
+        : graph(graph), spectrumMatrix(spectrumMatrix), adjacencySubgraphs(adjacencySubgraphs) {};
+
+    std::string toGraphVizView() {
+        std::string ret = 
+            "digraph structs {\n"
+            "rankdir = LR\n"
+            "node[shape = square, fontname = \"Courier\"]\n";
+
+
+        //graph
+        ret += "M1 [shape=Msquare, label=\" \n " + graph.toStringMatrix() + " \n GRAPH \n \"]\n";
+
+        //spectrumMatrix
+        ret += "S1 [shape=Msquare, label=\" \n " + spectrumMatrix.toStringMatrix() + " \n SPECTRUM MATRIX \n \"]\n";
+
+
+        for (auto it : adjacencySubgraphs)
+        {
+            ret += "v" + it.getLabel() + " [shape=Msquare, label=\" \n " + it.toStringMatrix() + " \nVERTEX " + it.getLabel() + "\n \"]\n";
+
+            ret += "sv" + it.getLabel() + " [shape=Msquare, label=\" \n " + it.getSpectrumAsString() + " \nSPECTRUM VERTEX " + it.getLabel() + "\n \"]\n";
+
+            ret += "M1 -> v" + it.getLabel() + " -> sv" + it.getLabel() + "\n";
+        }
+
+
+        ret += "M1 -> S1";
+
+        ret += "}\n";
+
+        return ret;
+    };
+};
+
 AdjacencyMatrix makeFirstDegreeSubgraph(AdjacencyMatrix& matrix, int vertex)
 {
     auto v = matrix.getData()[vertex];
@@ -15,7 +55,7 @@ AdjacencyMatrix makeFirstDegreeSubgraph(AdjacencyMatrix& matrix, int vertex)
     toRemove.insert(vertex);
 
     AdjacencyMatrix subGraph(matrix);
-    subGraph.setLabel("vertex " + std::to_string(vertex));
+    subGraph.setLabel(std::to_string(vertex));
     for (int i = 0; i < v.neighbors.size(); i++)
     {
         if(!v.neighbors[i])
@@ -34,20 +74,20 @@ AdjacencyMatrix makeSecondDegreeSubgraph(AdjacencyMatrix& matrix, int vertex)
     std::set<int> toRemove;
     toRemove.insert(vertex);
 
-    std::set<int> secondDegreeNeighborhood;
-    auto neighborhood = matrix.getNeighborhoodForVertex(vertex);
-    for (auto it : neighborhood)
+    std::set<int> secondDegreeAdjacency;
+    auto adjacency = matrix.getAdjacencyForVertex(vertex);
+    for (auto it : adjacency)
     {
-        auto tempNeighborhood = matrix.getNeighborhoodForVertex(it);
-        secondDegreeNeighborhood.insert(tempNeighborhood.begin(), tempNeighborhood.end());
+        auto tempAdjacency = matrix.getAdjacencyForVertex(it);
+        secondDegreeAdjacency.insert(tempAdjacency.begin(), tempAdjacency.end());
     }
-    secondDegreeNeighborhood.insert(neighborhood.begin(), neighborhood.end());
+    secondDegreeAdjacency.insert(adjacency.begin(), adjacency.end());
 
     AdjacencyMatrix subGraph(matrix);
     subGraph.setLabel("vertex " + std::to_string(vertex));
     for (int i = 0; i < v.neighbors.size(); i++)
     {
-        if (secondDegreeNeighborhood.find(i) == secondDegreeNeighborhood.end())
+        if (secondDegreeAdjacency.find(i) == secondDegreeAdjacency.end())
             toRemove.insert(i);
     }
     subGraph.removeVertices(toRemove);
@@ -55,7 +95,7 @@ AdjacencyMatrix makeSecondDegreeSubgraph(AdjacencyMatrix& matrix, int vertex)
 }
 
 template<typename function>
-std::vector<AdjacencyMatrix> makeNeighborhoodSubgraphs(AdjacencyMatrix& matrix, function fun)
+std::vector<AdjacencyMatrix> makeAdjacencySubgraphs(AdjacencyMatrix& matrix, function fun)
 {
     std::vector<AdjacencyMatrix> ret;
     auto data = matrix.getData();
@@ -78,8 +118,7 @@ AdjacencyMatrix readAdjacencyMatrix(std::string& path, bool print = false)
 
 bool compareDouble(long double db1, long double db2)
 {
-    int epsilon = 4;
-    int multi = epsilon * 10;
+    int multi = EPS * 10;
     return (std::round(db1*multi) / multi) == (std::round(db2*multi) / multi);
 }
 
@@ -101,7 +140,7 @@ bool compareSpectrum(std::vector<long double> sp1, std::vector<long double> sp2)
 Json::Value createResult(AdjacencyMatrix &graph, AdjacencyMatrix &spectrumMatrix)
 {
     Json::Value resultJson;
-    resultJson["neighborhoodDegree"] = 1;
+    resultJson["adjacencyDegree"] = 1;
     resultJson["matrixUnrollingType"] = "row-majorOrder";
     resultJson["numberOfVertices"] = graph.getNumberOfVertices();
     resultJson["numberOfEdges"] = graph.getNumberOfEdges();
@@ -148,9 +187,9 @@ void calculateSpectrumMatrix(std::string &inputPath, std::string& outputPath, in
 
     std::vector<AdjacencyMatrix> subGraphs;
     if (mode == 1)
-        subGraphs = makeNeighborhoodSubgraphs(graph, makeFirstDegreeSubgraph);
+        subGraphs = makeAdjacencySubgraphs(graph, makeFirstDegreeSubgraph);
     else if (mode == 2)
-        subGraphs = makeNeighborhoodSubgraphs(graph, makeSecondDegreeSubgraph);
+        subGraphs = makeAdjacencySubgraphs(graph, makeSecondDegreeSubgraph);
     
     for (auto& it : subGraphs)
         sito(it);
@@ -159,7 +198,10 @@ void calculateSpectrumMatrix(std::string &inputPath, std::string& outputPath, in
 
     auto spectrumMatrix = makeSpectrumMatrix(graph, subGraphs);
     auto result = createResult(graph, spectrumMatrix);
-    spectrumMatrix.print();
+    //spectrumMatrix.print();
+
+    GraphVizView view(graph, spectrumMatrix, subGraphs);
+    std::cout << view.toGraphVizView();
 
     std::fstream file(outputPath, std::fstream::out);
     file << result << std::endl;

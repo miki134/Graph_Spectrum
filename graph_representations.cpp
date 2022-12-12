@@ -152,7 +152,7 @@ AdjacencyMatrix::AdjacencyMatrix(std::string file_path)
     }
 }
 
-std::set<int> AdjacencyMatrix::getNeighborhoodForVertex(int vertex)
+std::set<int> AdjacencyMatrix::getAdjacencyForVertex(int vertex)
 {
     std::set<int> ret;
 
@@ -205,6 +205,30 @@ std::string AdjacencyMatrix::toGraphViz()
     return s;
 }
 
+std::string AdjacencyMatrix::toStringMatrix()
+{
+    std::string ret = "";
+
+    for (int it = 0; it < data.size(); it++) {
+        ret += data[it].label + ": ";
+
+        for (int it2 = 0; it2 < data[it].neighbors.size(); it2++)
+        {
+            ret += std::to_string(data[it].neighbors[it2]);
+
+            if (it2 < data[it].neighbors.size() - 1) {
+                ret += "|";
+            }
+        }
+
+        if (it < data.size() - 1) {
+            ret += "\n";
+        }
+    }
+
+    return ret;
+}
+
 std::vector<int> AdjacencyMatrix::toRowOrder()
 {
     std::vector<int> result;
@@ -243,6 +267,24 @@ void AdjacencyMatrix::setSpectrum(std::vector<long double> _spectrum)
 std::vector<long double> AdjacencyMatrix::getSpectrum()
 {
     return spectrum;
+}
+
+std::string AdjacencyMatrix::getSpectrumAsString()
+{
+    std::string ret = "[";
+
+
+    for (int it = 0; it < spectrum.size(); it++) {
+        int multi = EPS * 10;
+        ret += std::to_string(std::round(it*multi) / multi);
+        //ret += std::to_string(it);
+
+        if (it < spectrum.size() - 1)
+            ret += "|";
+    }
+
+    ret += "]";
+    return ret;
 }
 
 int AdjacencyMatrix::size() const

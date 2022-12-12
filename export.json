@@ -1,4 +1,5 @@
 {
+	"adjacencyDegree" : 1,
 	"graph" : 
 	[
 		0,
@@ -103,7 +104,6 @@
 		0
 	],
 	"matrixUnrollingType" : "row-majorOrder",
-	"neighborhoodDegree" : 1,
 	"numberOfEdges" : 22,
 	"numberOfVertices" : 10,
 	"spectrumMatrix" : 

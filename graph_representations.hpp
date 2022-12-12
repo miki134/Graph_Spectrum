@@ -12,6 +12,8 @@
 
 class AdjacencyList;
 
+const int EPS = 4;
+
 struct Vertex
 {
     std::vector<bool> neighbors;
@@ -39,20 +41,21 @@ public:
     AdjacencyMatrix(std::vector<std::vector<bool>> _data);
     AdjacencyMatrix(std::vector<bool> _data);
     AdjacencyMatrix(std::string file_path);
-    //AdjacencyMatrix(std::vector< std::vector<int> > list);
 
-    std::set<int> getNeighborhoodForVertex(int vertex);
+    std::set<int> getAdjacencyForVertex(int vertex);
 
     int getNumberOfVertices();
     int getNumberOfEdges();
 
     std::string toGraphViz();
+    std::string toStringMatrix();
 
     std::vector<int> toRowOrder();
     std::vector<int> toColumnOrder();
 
     void setSpectrum(std::vector<long double> _spectrum);
     std::vector<long double> getSpectrum();
+    std::string getSpectrumAsString();
 
     int size() const;
 
