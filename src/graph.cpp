@@ -57,7 +57,6 @@ AdjacencyMatrix makeFirstDegreeSubgraph(AdjacencyMatrix& matrix, int vertex)
     }
 
     subGraph.removeVertices(toRemove);
-
     return subGraph;
 }
 
@@ -91,22 +90,19 @@ AdjacencyMatrix makeSecondDegreeSubgraph(AdjacencyMatrix& matrix, int vertex)
 template<typename function>
 std::vector<AdjacencyMatrix> makeAdjacencySubgraphs(AdjacencyMatrix& matrix, function fun)
 {
-    std::vector<AdjacencyMatrix> ret;
     auto data = matrix.getData();
+    std::vector<AdjacencyMatrix> ret;
     for (int it = 0; it < data.size(); it++)
-    {
         ret.push_back(fun(matrix, it));
-    }
     return ret;
 }
 
 AdjacencyMatrix readAdjacencyMatrix(std::string& path, bool print = false)
 {
     AdjacencyMatrix matrix(path);
-
+    
     if(print) 
         matrix.print();
-
     return matrix;
 }
 
@@ -123,11 +119,8 @@ bool compareSpectrum(std::vector<long double> sp1, std::vector<long double> sp2)
 
     bool ret = true;
     for (int i = 0; i < sp1.size(); i++)
-    {
         if (!compareDouble(sp1[i], sp2[i]))
             ret = false;
-    }
-
     return ret;
 }
 
@@ -151,7 +144,6 @@ Json::Value createResult(AdjacencyMatrix &graph, AdjacencyMatrix &spectrumMatrix
         vec2.append(it);
 
     resultJson["spectrumMatrix"] = vec2;
-
     return resultJson;
 }
 

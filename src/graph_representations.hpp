@@ -28,12 +28,6 @@ private:
     std::vector<long double> spectrum;
 
     int degree(int vertex);
-    void eulerianCycleDfs(int v, std::list<int> &cycle);
-    bool contains(std::vector<int> &collection, int element);
-    bool hamiltonianCycleDfs(int v, std::vector<int> &visited);
-    bool isSafe(int v, std::vector<std::vector<bool>> graph, int path[], int pos);
-    bool hamCycleUtil(std::vector<std::vector<bool>> graph, int path[], int pos);
-    void printSolution(int path[], int V);
 
 public:
     AdjacencyMatrix();
@@ -70,20 +64,6 @@ public:
     bool is_edge(int u, int v);
 
     void print();
-
-    int countBackedgesAdjMatrix();
-
-    bool isEulerian();
-    void makeEulerian();
-
-    void makeCoherent();
-    bool isCoherent();
-
-    //graph cycles
-    std::vector<int> hamiltonianCycle();
-    std::list<int> eulerianCycle();
-
-    bool hamCycle(std::vector<std::vector<bool>> graph);
    
     void removeVertex(const int toRemove);
     void removeVertices(std::set<int> toRemove);

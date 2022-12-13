@@ -390,14 +390,9 @@ std::vector<long double> sito(AdjacencyMatrix & matrix)
     int N = matrix.size();
 
     convert(A, matrix);
-    //printt(A);
 
     AToa(N, A, a);
     eigensymmatrix(N, a, 1, N, x);
-    //printX(N, x);
-
-    //if (isintegral(N, x))
-        //printSout(N, A, const_cast<char*>(vec[2].c_str()));
 
     std::vector<long double> ret;
     for(int it = 0; it < matrix.size(); it++)

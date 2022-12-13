@@ -33,11 +33,9 @@ public:
 
         unsigned int maxEdgesCount = vertices * (vertices - 1) / 2;
         unsigned int edgesCount = density * maxEdgesCount;
-
-        srand(time(NULL));
-
         unsigned int edgesIter = 0;
 
+        srand(time(NULL));
         while (edgesIter < edgesCount)
         {
             unsigned int ver1 = rand() % vertices;
@@ -54,9 +52,7 @@ public:
 
         std::ofstream file(file_path);
         file << am;
-
         file.close();
-
         return true;
     }
 };
