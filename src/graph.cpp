@@ -22,26 +22,19 @@ struct GraphVizView {
             "rankdir = LR\n"
             "node[shape = square, fontname = \"Courier\"]\n";
 
-
         //graph
         ret += "M1 [shape=Msquare, label=\" \n " + graph.toStringMatrix() + " \n GRAPH \n \"]\n";
-
         //spectrumMatrix
         ret += "S1 [shape=Msquare, label=\" \n " + spectrumMatrix.toStringMatrix() + " \n SPECTRUM MATRIX \n \"]\n";
-
 
         for (auto it : adjacencySubgraphs)
         {
             ret += "v" + it.getLabel() + " [shape=Msquare, label=\" \n " + it.toStringMatrix() + " \nVERTEX " + it.getLabel() + "\n \"]\n";
-
             ret += "sv" + it.getLabel() + " [shape=box, label=\" \n " + it.getSpectrumAsString() + " \nSPECTRUM VERTEX " + it.getLabel() + "\n \"]\n";
-
             ret += "M1 -> v" + it.getLabel() + " -> sv" + it.getLabel() + "\n";
         }
 
-
         ret += "M1 -> S1";
-
         ret += "}\n";
 
         return ret;
@@ -85,7 +78,7 @@ AdjacencyMatrix makeSecondDegreeSubgraph(AdjacencyMatrix& matrix, int vertex)
     secondDegreeAdjacency.insert(adjacency.begin(), adjacency.end());
 
     AdjacencyMatrix subGraph(matrix);
-    subGraph.setLabel("vertex " + std::to_string(vertex));
+    subGraph.setLabel(std::to_string(vertex));
     for (int i = 0; i < v.neighbors.size(); i++)
     {
         if (secondDegreeAdjacency.find(i) == secondDegreeAdjacency.end())
@@ -138,10 +131,10 @@ bool compareSpectrum(std::vector<long double> sp1, std::vector<long double> sp2)
     return ret;
 }
 
-Json::Value createResult(AdjacencyMatrix &graph, AdjacencyMatrix &spectrumMatrix)
+Json::Value createResult(AdjacencyMatrix &graph, AdjacencyMatrix &spectrumMatrix, int mode)
 {
     Json::Value resultJson;
-    resultJson["adjacencyDegree"] = 1;
+    resultJson["adjacencyDegree"] = mode;
     resultJson["matrixUnrollingType"] = "row-majorOrder";
     resultJson["numberOfVertices"] = graph.getNumberOfVertices();
     resultJson["numberOfEdges"] = graph.getNumberOfEdges();
@@ -169,16 +162,11 @@ AdjacencyMatrix makeSpectrumMatrix(AdjacencyMatrix& graph, std::vector<Adjacency
     auto spectrumGraphData = spectrumMatrix.getData();
 
     for (int i = 0; i < subGraphs.size(); i++)
-    {
         for (int y = 0; y < subGraphs.size(); y++)
-        {
             if (compareSpectrum(subGraphs[i].getSpectrum(), subGraphs[y].getSpectrum()))
                 spectrumGraphData[i].neighbors[y] = 1;
-        }
-    }
 
     spectrumMatrix = AdjacencyMatrix(spectrumGraphData);
-
     return spectrumMatrix;
 }
 
@@ -198,7 +186,7 @@ void calculateSpectrumMatrix(std::string &inputPath, std::string& outputPath, in
     //std::cout << graph.toGraphViz();
 
     auto spectrumMatrix = makeSpectrumMatrix(graph, subGraphs);
-    auto result = createResult(graph, spectrumMatrix);
+    auto result = createResult(graph, spectrumMatrix, mode);
     //spectrumMatrix.print();
 
     GraphVizView view(graph, spectrumMatrix, subGraphs);
